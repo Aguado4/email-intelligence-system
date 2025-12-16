@@ -50,3 +50,7 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Tests
+test_classifier.py
+**/test_*.py
