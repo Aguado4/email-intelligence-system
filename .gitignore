@@ -37,6 +37,9 @@ wheels/
 
 # Docker
 *.log
+**/.env
+.env
+docker-compose.override.yml
 
 # Testing
 .pytest_cache/
