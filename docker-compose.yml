@@ -1,0 +1,59 @@
+version: '3.8'
+
+# Docker Compose for Email Intelligence System
+# This orchestrates all microservices
+
+services:
+  # ============= Classifier Service =============
+  classifier:
+    build:
+      context: ./services/classifier-service
+      dockerfile: Dockerfile
+    container_name: email-classifier
+    environment:
+      # LLM Configuration
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      MODEL_NAME: ${MODEL_NAME:-gemini-2.0-flash-exp}
+      MAX_TOKENS: ${MAX_TOKENS:-1000}
+      TEMPERATURE: ${TEMPERATURE:-0.0}
+      
+      # Thresholds
+      HIGH_CONFIDENCE_THRESHOLD: ${HIGH_CONFIDENCE_THRESHOLD:-0.75}
+      LOW_CONFIDENCE_THRESHOLD: ${LOW_CONFIDENCE_THRESHOLD:-0.50}
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    
+    # Mount code for development (hot reload)
+    volumes:
+      - ./services/classifier-service:/app
+      - ./shared:/app/shared
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Network
+    networks:
+      - email-intelligence-net
+    
+    # Resource limits (optional but good practice)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+# ============= Networks =============
+networks:
+  email-intelligence-net:
+    driver: bridge
+    name: email-intelligence-network
+
+# ============= Volumes (for later - database) =============
+volumes:
+  postgres_data:
+    name: email-intelligence-db
