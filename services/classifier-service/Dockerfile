@@ -4,7 +4,6 @@
 # ============= Builder Stage =============
 FROM python:3.11-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
 # Install system dependencies
@@ -21,7 +20,6 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 # ============= Runtime Stage =============
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
 # Copy Python packages from builder
@@ -36,12 +34,12 @@ COPY . .
 # Set Python to run in unbuffered mode (logs appear immediately)
 ENV PYTHONUNBUFFERED=1
 
-# Expose port (we'll add FastAPI later, but good practice)
+# Expose port
 EXPOSE 8001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "from config.settings import get_settings; get_settings()" || exit 1
+    CMD python -c "import httpx; httpx.get('http://localhost:8001/health')" || exit 1
 
-# Run the test script for now (we'll change this to a service later)
-CMD ["python", "test_classifier.py"]
+# Run FastAPI with uvicorn (changed from test script!)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]

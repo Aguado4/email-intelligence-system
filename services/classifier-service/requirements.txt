@@ -7,6 +7,10 @@ langchain-core>=0.2.0,<0.3.0
 langchain-google-genai>=1.0.0,<2.0.0
 google-generativeai>=0.7.0
 
+# Web Framework
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
 # Configuration
 pydantic>=2.9.0
 pydantic-settings>=2.5.0

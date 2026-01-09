@@ -9,11 +9,15 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Annotated
 import logging
 import time
-
-# Import shared models
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent / "shared"))
+
+# Add shared models to Python path
+shared_path = Path("/app/shared")
+if str(shared_path) not in sys.path:
+    sys.path.insert(0, str(shared_path))
+
+# Now import from shared models
 from models.schemas import EmailInput, EmailProcessingResponse, ClassificationResult
 
 from app.clients.classifier_client import ClassifierClient
