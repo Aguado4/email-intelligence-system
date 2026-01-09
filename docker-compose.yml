@@ -55,6 +55,31 @@ services:
         limits:
           cpus: '1.0'
           memory: 512M
+  # ============= Vector DB Service =============
+  vector-db:
+    image: chromadb/chroma:latest
+    container_name: email-vector-db
+    ports:
+      - "8002:8000"
+    volumes:
+      - vector_data:/chroma/chroma 
+    networks:
+      - email-intelligence-net
+  
+  vector-db-service:
+    build:
+      context: ./services/vector-db-service
+    container_name: email-vector-service
+    environment:
+      CHROMA_HOST: vector-db
+      CHROMA_PORT: 8000
+    depends_on:
+      - vector-db
+    networks:
+      - email-intelligence-net
+
+volumes:
+  vector_data:
 
 networks:
   email-intelligence-net:
