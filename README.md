@@ -214,7 +214,7 @@ LLM_PROVIDER=gemini  # Options: gemini, openai, anthropic
 GEMINI_API_KEY=your-key-here
 
 # Model Settings
-MODEL_NAME=gemini-2.0-flash-exp
+MODEL_NAME=gemini-2.0-flash
 MAX_TOKENS=1000
 TEMPERATURE=0.0  # Deterministic classification
 
