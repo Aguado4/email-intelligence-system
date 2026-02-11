@@ -1,0 +1,197 @@
+[
+  {
+    "email_id": "spam_001",
+    "subject": "URGENT: Verify your account immediately",
+    "body": "Your account has been locked due to suspicious activity. Click here to verify your identity within 24 hours or your account will be permanently deleted.",
+    "sender": "noreply@secure-banking-verify.com",
+    "category": "spam",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Phishing attempt with urgency and fake threat"
+    }
+  },
+  {
+    "email_id": "spam_002",
+    "subject": "Congratulations! You've won $1,000,000",
+    "body": "You have been selected as the winner of our international lottery. To claim your prize, please provide your bank details and pay a small processing fee of $500.",
+    "sender": "lottery@winner-claims.com",
+    "category": "spam",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Classic lottery scam"
+    }
+  },
+  {
+    "email_id": "spam_003",
+    "subject": "Limited time offer - 90% discount on all products!",
+    "body": "Buy now and save thousands! This offer expires in 2 hours. Click here to shop. Unbelievable deals you can't miss!",
+    "sender": "deals@super-bargains.shop",
+    "category": "spam",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Promotional spam with fake urgency"
+    }
+  },
+  {
+    "email_id": "spam_004",
+    "subject": "Your package is waiting for pickup",
+    "body": "A package addressed to you could not be delivered. Click the link below to reschedule delivery and confirm your address details.",
+    "sender": "delivery@package-tracking.net",
+    "category": "spam",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Fake delivery notification phishing"
+    }
+  },
+  {
+    "email_id": "spam_005",
+    "subject": "IRS Tax Refund Notification",
+    "body": "You are eligible for a tax refund of $3,247. To process your refund, please verify your information by clicking the secure link below.",
+    "sender": "refunds@irs-taxrefund.com",
+    "category": "spam",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Government impersonation scam"
+    }
+  },
+  {
+    "email_id": "important_001",
+    "subject": "Board meeting rescheduled to tomorrow 2pm",
+    "body": "Due to scheduling conflicts, the Q4 board review meeting has been moved to tomorrow at 2:00 PM in Conference Room A. Please confirm your attendance.",
+    "sender": "ceo@company.com",
+    "category": "important",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Time-sensitive business meeting"
+    }
+  },
+  {
+    "email_id": "important_002",
+    "subject": "URGENT: Production server outage",
+    "body": "The main production server is experiencing downtime. All hands needed for immediate investigation and resolution. Join the emergency call now.",
+    "sender": "devops@company.com",
+    "category": "important",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Critical technical issue"
+    }
+  },
+  {
+    "email_id": "important_003",
+    "subject": "Client contract requires immediate signature",
+    "body": "The Johnson Industries contract is ready for final signature. The client needs this signed by end of day to proceed with the project launch next week.",
+    "sender": "legal@company.com",
+    "category": "important",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Time-sensitive legal matter"
+    }
+  },
+  {
+    "email_id": "important_004",
+    "subject": "Security alert: Unauthorized access attempt",
+    "body": "We detected an unauthorized login attempt to your corporate account from an unfamiliar location. Please review the security logs and update your password immediately.",
+    "sender": "security@company.com",
+    "category": "important",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Security incident requiring action"
+    }
+  },
+  {
+    "email_id": "important_005",
+    "subject": "Payroll processing deadline - action required",
+    "body": "Please submit your timesheet corrections by 3 PM today. Any submissions after this deadline will be processed in the next pay cycle.",
+    "sender": "hr@company.com",
+    "category": "important",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "HR deadline with financial impact"
+    }
+  },
+  {
+    "email_id": "neutral_001",
+    "subject": "Weekly team newsletter - January 2025",
+    "body": "Here's this week's roundup of team achievements, upcoming events, and interesting articles from around the web. Enjoy your weekend!",
+    "sender": "newsletter@company.com",
+    "category": "neutral",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Regular informational content"
+    }
+  },
+  {
+    "email_id": "neutral_002",
+    "subject": "Office kitchen cleaning schedule",
+    "body": "Reminder that kitchen cleaning duties rotate weekly. This week's schedule is posted on the bulletin board.",
+    "sender": "facilities@company.com",
+    "category": "neutral",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Routine facilities notice"
+    }
+  },
+  {
+    "email_id": "neutral_003",
+    "subject": "New blog post: 10 Tips for Better Code Reviews",
+    "body": "Check out our latest engineering blog post about improving code review practices. We'd love to hear your thoughts in the comments.",
+    "sender": "engineering-blog@company.com",
+    "category": "neutral",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Optional reading material"
+    }
+  },
+  {
+    "email_id": "neutral_004",
+    "subject": "Lunch and learn next Thursday",
+    "body": "Join us next Thursday for a lunch and learn session about microservices architecture. Pizza will be provided. RSVP optional.",
+    "sender": "events@company.com",
+    "category": "neutral",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "Optional social event"
+    }
+  },
+  {
+    "email_id": "neutral_005",
+    "subject": "Weather forecast for the week",
+    "body": "This week's weather: Monday through Wednesday will be sunny with highs in the 70s. Rain expected Thursday and Friday.",
+    "sender": "office-updates@company.com",
+    "category": "neutral",
+    "confidence": 1.0,
+    "metadata": {
+      "source": "labeled_dataset",
+      "verified": true,
+      "notes": "General information"
+    }
+  }
+]

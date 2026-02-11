@@ -58,3 +58,4 @@ logs/
 test_classifier.py
 **/test_*.py
 !tests/test_*.py
+.claude/

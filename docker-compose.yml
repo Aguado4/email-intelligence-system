@@ -55,9 +55,9 @@ services:
         limits:
           cpus: '1.0'
           memory: 512M
-  # ============= Vector DB Service =============
+# ============= Vector DB (ChromaDB) =============
   vector-db:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.5.23
     container_name: email-vector-db
     ports:
       - "8002:8000"
@@ -65,21 +65,42 @@ services:
       - vector_data:/chroma/chroma 
     networks:
       - email-intelligence-net
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 30s
   
   vector-db-service:
     build:
       context: ./services/vector-db-service
+      dockerfile: Dockerfile
     container_name: email-vector-service
     environment:
       CHROMA_HOST: vector-db
       CHROMA_PORT: 8000
+      COLLECTION_NAME: email_examples
+      EMBEDDING_MODEL: all-MiniLM-L6-v2
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./services/vector-db-service:/app
     depends_on:
       - vector-db
     networks:
       - email-intelligence-net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G  # Higher for embedding model
 
 volumes:
   vector_data:
+
 
 networks:
   email-intelligence-net:
