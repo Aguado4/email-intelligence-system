@@ -5,12 +5,11 @@ services:
       context: ./services/api-gateway
       dockerfile: Dockerfile
     container_name: email-api-gateway
+    env_file:
+      - ./services/api-gateway/.env
     environment:
-      SERVICE_NAME: api-gateway
-      SERVICE_VERSION: 1.0.0
-      PORT: 8000
+      # Docker-specific overrides
       CLASSIFIER_SERVICE_URL: http://classifier:8001
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:
       - "8000:8000"  # Expose to host machine
     volumes:
@@ -33,15 +32,8 @@ services:
       context: ./services/classifier-service
       dockerfile: Dockerfile
     container_name: email-classifier
-    environment:
-      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      MODEL_NAME: ${MODEL_NAME:-gemini-2.5-flash}
-      MAX_TOKENS: ${MAX_TOKENS:-1000}
-      TEMPERATURE: ${TEMPERATURE:-0.0}
-      HIGH_CONFIDENCE_THRESHOLD: ${HIGH_CONFIDENCE_THRESHOLD:-0.75}
-      LOW_CONFIDENCE_THRESHOLD: ${LOW_CONFIDENCE_THRESHOLD:-0.50}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    env_file:
+      - ./services/classifier-service/.env
     expose:
       - "8001"  # Only accessible within Docker network
     volumes:
@@ -77,12 +69,12 @@ services:
       context: ./services/vector-db-service
       dockerfile: Dockerfile
     container_name: email-vector-service
+    env_file:
+      - ./services/vector-db-service/.env
     environment:
+      # Docker-specific overrides
       CHROMA_HOST: vector-db
       CHROMA_PORT: 8000
-      COLLECTION_NAME: email_examples
-      EMBEDDING_MODEL: all-MiniLM-L6-v2
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:
       - "8003:8003"
     volumes:

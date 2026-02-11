@@ -22,7 +22,7 @@ A production-ready microservices architecture for intelligent email classificati
 │   Classifier Service (LangGraph)        │
 │  - Email classification workflow        │
 │  - Conditional routing based on conf    │
-│  - Gemini 2.0 Flash integration         │
+│  - Gemini 2.5 Flash integration         │
 └────────┬────────────────────────────────┘
          │ (Future: RAG queries)
          ↓
@@ -70,7 +70,7 @@ A production-ready microservices architecture for intelligent email classificati
 - **FastAPI**: Modern async web framework
 - **LangGraph**: LLM workflow orchestration with state machines
 - **LangChain**: LLM integrations and abstractions
-- **Gemini 2.0 Flash**: Google's latest LLM (configurable)
+- **Gemini 2.5 Flash**: Google's latest LLM (configurable)
 - **ChromaDB**: Vector database for semantic similarity search
 - **Sentence-Transformers**: Embedding generation (all-MiniLM-L6-v2)
 - **Docker & Docker Compose**: Containerization and orchestration
@@ -247,7 +247,7 @@ LLM_PROVIDER=gemini  # Options: gemini, openai, anthropic
 GEMINI_API_KEY=your-key-here
 
 # Model Settings
-MODEL_NAME=gemini-2.0-flash
+MODEL_NAME=gemini-2.5-flash
 MAX_TOKENS=1000
 TEMPERATURE=0.0  # Deterministic classification
 
