@@ -23,6 +23,21 @@ A production-ready microservices architecture for intelligent email classificati
 │  - Email classification workflow        │
 │  - Conditional routing based on conf    │
 │  - Gemini 2.0 Flash integration         │
+└────────┬────────────────────────────────┘
+         │ (Future: RAG queries)
+         ↓
+┌─────────────────────────────────────────┐
+│   Vector DB Service (ChromaDB)          │
+│  - Semantic similarity search           │
+│  - Few-shot examples storage            │
+│  - Sentence-transformers embeddings     │
+└────────┬────────────────────────────────┘
+         │
+         ↓
+┌─────────────────────────────────────────┐
+│   ChromaDB Server                       │
+│  - Vector storage                       │
+│  - Similarity queries                   │
 └─────────────────────────────────────────┘
 ```
 
@@ -34,13 +49,17 @@ A production-ready microservices architecture for intelligent email classificati
 - **LangGraph Workflows**: Stateful, conditional email classification pipeline
 - **Provider-Agnostic LLM**: Easy switching between Gemini, OpenAI, Anthropic
 - **Confidence-Based Routing**: Automatic re-analysis for low-confidence classifications
+- **Vector DB Service**: ChromaDB with sentence-transformers for semantic search
+- **Ground Truth Examples**: Pre-loaded examples for spam, important, and neutral emails
 - **Type Safety**: Pydantic models with validation throughout
 - **Docker Compose**: One-command deployment
 - **Health Monitoring**: Health check endpoints for all services
 - **Structured Logging**: Comprehensive logging for debugging
 
+### In Progress 🔨
+- **RAG Integration**: Connect classifier to vector-db for few-shot learning on low-confidence cases
+
 ### Planned Features 🚧
-- **RAG Enhancement**: Vector database for few-shot learning on low-confidence cases
 - **PostgreSQL Integration**: Persistent storage for classifications and analytics
 - **Evaluation Service**: Automated testing with F1, precision, recall metrics
 - **Grafana Dashboard**: Real-time monitoring and metrics visualization
@@ -52,6 +71,8 @@ A production-ready microservices architecture for intelligent email classificati
 - **LangGraph**: LLM workflow orchestration with state machines
 - **LangChain**: LLM integrations and abstractions
 - **Gemini 2.0 Flash**: Google's latest LLM (configurable)
+- **ChromaDB**: Vector database for semantic similarity search
+- **Sentence-Transformers**: Embedding generation (all-MiniLM-L6-v2)
 - **Docker & Docker Compose**: Containerization and orchestration
 - **Pydantic**: Data validation and settings management
 - **httpx**: Async HTTP client for service communication
@@ -68,13 +89,23 @@ email-intelligence-system/
 │   │   ├── Dockerfile
 │   │   └── requirements.txt
 │   │
-│   └── classifier-service/       # LangGraph classifier
+│   ├── classifier-service/       # LangGraph classifier
+│   │   ├── app/
+│   │   │   └── main.py          # FastAPI wrapper
+│   │   ├── workflows/
+│   │   │   └── email_classifier.py  # LangGraph workflow
+│   │   ├── config/
+│   │   │   └── settings.py      # Configuration
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   └── vector-db-service/        # Vector DB for RAG
 │       ├── app/
-│       │   └── main.py          # FastAPI wrapper
-│       ├── workflows/
-│       │   └── email_classifier.py  # LangGraph workflow
-│       ├── config/
-│       │   └── settings.py      # Configuration
+│       │   ├── main.py          # FastAPI app
+│       │   ├── models/          # Pydantic schemas
+│       │   └── storage/         # ChromaDB & embeddings
+│       ├── data/
+│       │   └── ground_truth.json # Pre-loaded examples
 │       ├── Dockerfile
 │       └── requirements.txt
 │
@@ -119,6 +150,8 @@ docker-compose up
 Services will be available at:
 - **API Gateway**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/docs (Swagger UI)
+- **Vector DB Service**: http://localhost:8003
+- **Vector DB Docs**: http://localhost:8003/docs
 
 ### Usage Examples
 
@@ -236,9 +269,13 @@ docker-compose up api-gateway
 # Classifier only
 docker-compose up classifier
 
+# Vector DB services only
+docker-compose up vector-db vector-db-service
+
 # View logs
 docker-compose logs -f api-gateway
 docker-compose logs -f classifier
+docker-compose logs -f vector-db-service
 ```
 
 ### Rebuild After Code Changes
@@ -285,6 +322,17 @@ python -c "from models.schemas import EmailInput; print('OK')"
 | GET | `/health` | Health check |
 | POST | `/classify` | Internal classification endpoint |
 
+### Vector DB Service (Port 8003)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Service information |
+| GET | `/health` | Health check |
+| GET | `/stats` | Database statistics (counts by category) |
+| POST | `/store` | Store a new email example |
+| POST | `/search` | Search for similar emails (semantic) |
+| DELETE | `/examples/{id}` | Delete an example |
+
 ## 🐛 Troubleshooting
 
 ### Issue: Port already in use
@@ -328,4 +376,4 @@ MIT
 
 ---
 
-**Status**: 🟢 Core microservices operational | 🔨 RAG enhancement in progress
+**Status**: 🟢 Core microservices operational | 🟢 Vector DB ready | 🔨 RAG integration in progress
