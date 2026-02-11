@@ -35,9 +35,13 @@ class Settings(BaseSettings):
     service_version: str = "1.0.0"
     log_level: str = "INFO"
     
-    # Classification Thresholds
-    high_confidence_threshold: float = 0.75
-    low_confidence_threshold: float = 0.50
+    # Classification Threshold
+    # Below this threshold, RAG re-analysis is triggered
+    confidence_threshold: float = 0.75
+
+    # RAG Configuration
+    vector_db_url: str = "http://vector-db-service:8003"
+    rag_examples_count: int = 3
     
     model_config = SettingsConfigDict(
         env_file=".env",

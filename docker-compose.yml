@@ -42,6 +42,8 @@ services:
     restart: unless-stopped
     networks:
       - email-intelligence-net
+    depends_on:
+      - vector-db-service  # Wait for RAG service to be available
     deploy:
       resources:
         limits:

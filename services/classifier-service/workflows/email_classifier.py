@@ -17,12 +17,16 @@ import json
 import logging
 
 from config.settings import get_settings
+from clients.vector_db_client import VectorDBClient, SimilarExample
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
+
+# Initialize vector DB client for RAG
+vector_db_client = VectorDBClient(base_url=settings.vector_db_url)
 
 
 # ============= State Definition =============
@@ -132,6 +136,36 @@ def clean_json_response(content: str) -> str:
     return content.strip()
 
 
+# ============= RAG Helper Functions =============
+
+def format_examples_for_prompt(examples: list[SimilarExample]) -> str:
+    """
+    Format similar examples as few-shot examples for the prompt.
+
+    Args:
+        examples: List of similar examples from vector DB
+
+    Returns:
+        Formatted string with examples
+    """
+    if not examples:
+        return ""
+
+    formatted = "Here are similar emails and their correct classifications:\n\n"
+
+    for i, ex in enumerate(examples, 1):
+        formatted += f"""Example {i}:
+Subject: {ex.subject}
+From: {ex.sender}
+Body: {ex.body[:200]}...
+Classification: {ex.category} (confidence: {ex.confidence})
+Similarity to your email: {ex.similarity_score:.2f}
+
+"""
+
+    return formatted
+
+
 # ============= Node Functions =============
 
 async def classify_email_node(state: EmailClassificationState) -> EmailClassificationState:
@@ -231,45 +265,67 @@ Body: {state['body'][:1000]}"""  # Limit body length
 
 async def reanalyze_node(state: EmailClassificationState) -> EmailClassificationState:
     """
-    Re-analysis node for low-confidence classifications.
-    
+    RAG-enhanced re-analysis node for low-confidence classifications.
+
     This node is triggered when initial confidence is low.
-    It uses a different prompting strategy with more context.
-    
+    It fetches similar examples from the vector database and uses
+    them as few-shot learning examples to improve classification.
+
     Args:
         state: Current workflow state
-        
-    Returns:
-        Updated state with re-analyzed results
-    """
-    logger.info(f"Re-analyzing email {state['email_id']} (retry {state['retry_count']})")
-    
-    # Enhanced prompt with previous classification context
-    system_prompt = """You are an expert email classifier performing a SECOND analysis.
 
-The first classification was uncertain. Please carefully reconsider:
+    Returns:
+        Updated state with RAG-enhanced results
+    """
+    logger.info(f"Re-analyzing email {state['email_id']} with RAG (retry {state['retry_count']})")
+
+    # Fetch similar examples from vector database
+    similar_examples = await vector_db_client.search_similar(
+        subject=state['subject'],
+        body=state['body'],
+        k=settings.rag_examples_count
+    )
+
+    # Format examples for the prompt
+    examples_text = format_examples_for_prompt(similar_examples)
+
+    if similar_examples:
+        logger.info(f"Found {len(similar_examples)} similar examples for RAG")
+    else:
+        logger.warning("No similar examples found, proceeding without RAG")
+
+    # Enhanced prompt with RAG examples
+    system_prompt = """You are an expert email classifier performing a SECOND analysis with additional context.
+
+The first classification was uncertain. You now have access to similar email examples
+from our database to help guide your decision.
 
 Categories:
 - spam: Unsolicited, promotional, or malicious emails
 - important: Time-sensitive business matters requiring action
 - neutral: Regular correspondence
 
-Provide a more confident assessment. Consider:
-1. Sender reputation indicators
-2. Urgency keywords
-3. Call-to-action presence
+Use the similar examples as reference points, but make your own judgment based on the
+specific email content. Consider:
+1. How similar is this email to the examples?
+2. Sender reputation indicators
+3. Urgency keywords and call-to-action presence
 4. Professional vs promotional language
 
 You MUST respond with valid JSON only:
 {
     "category": "spam" | "important" | "neutral",
     "confidence": 0.0 to 1.0,
-    "reasoning": "Detailed explanation referencing specific indicators",
+    "reasoning": "Detailed explanation referencing the examples if relevant",
     "keywords": ["specific", "indicators", "found"]
 }"""
 
-    user_prompt = f"""Re-analyze this email with more scrutiny:
+    user_prompt = f"""Re-analyze this email using the similar examples as guidance:
 
+{examples_text}
+---
+
+EMAIL TO CLASSIFY:
 Subject: {state['subject']}
 From: {state['sender']}
 Body: {state['body']}
@@ -282,17 +338,20 @@ Previous reasoning: {state['reasoning']}"""
         SystemMessage(content=system_prompt),
         HumanMessage(content=user_prompt)
     ]
-    
+
     try:
         response = await llm.ainvoke(messages)
         content = clean_json_response(response.content)
         result = json.loads(content)
-        
+
         # Validate
         valid_categories = ["spam", "important", "neutral"]
         if result["category"] not in valid_categories:
             raise ValueError(f"Invalid category: {result['category']}")
-        
+
+        rag_used = len(similar_examples) > 0
+        processing_stage = "reanalyzed_with_rag" if rag_used else "reanalyzed"
+
         return {
             **state,
             "category": result["category"],
@@ -300,9 +359,9 @@ Previous reasoning: {state['reasoning']}"""
             "reasoning": result["reasoning"],
             "keywords": result["keywords"],
             "retry_count": state["retry_count"] + 1,
-            "processing_stage": "reanalyzed"
+            "processing_stage": processing_stage
         }
-        
+
     except Exception as e:
         logger.error(f"Re-analysis error: {e}")
         # Keep original classification but mark as uncertain
@@ -318,31 +377,31 @@ Previous reasoning: {state['reasoning']}"""
 def should_reanalyze(state: EmailClassificationState) -> str:
     """
     Decision function for conditional routing.
-    
+
     This determines which node to execute next based on:
-    - Confidence score
+    - Confidence score (threshold: 0.75)
     - Number of retries already attempted
-    
+
     Args:
         state: Current workflow state
-        
+
     Returns:
         Next node name: "reanalyze", "end", or "max_retries"
     """
     confidence = state["confidence"]
     retry_count = state.get("retry_count", 0)
-    
+
     # Maximum 1 retry to avoid infinite loops
     if retry_count >= 1:
         logger.info(f"Max retries reached for {state['email_id']}")
         return "max_retries"
-    
-    # Low confidence triggers re-analysis
-    if confidence < settings.low_confidence_threshold:
-        logger.info(f"Low confidence ({confidence:.2f}), triggering re-analysis")
+
+    # Below threshold triggers RAG re-analysis
+    if confidence < settings.confidence_threshold:
+        logger.info(f"Low confidence ({confidence:.2f} < {settings.confidence_threshold}), triggering RAG re-analysis")
         return "reanalyze"
-    
-    # High confidence, we're done
+
+    # Above threshold, we're done
     logger.info(f"Sufficient confidence ({confidence:.2f}), classification complete")
     return "end"
 
