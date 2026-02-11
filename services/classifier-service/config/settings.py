@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     
     # Model Configuration
-    model_name: str = "gemini-2.0-flash"
+    model_name: str = "gemini-2.5-flash"
     max_tokens: int = 1000
     temperature: float = 0.0  # Deterministic for classification
     
