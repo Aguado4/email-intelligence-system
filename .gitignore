@@ -57,5 +57,6 @@ logs/
 # Temporary tests
 test_classifier.py
 **/test_*.py
-!tests/test_*.py
+!services/**/tests/**/test_*.py
+!tests/**/test_*.py
 .claude/
